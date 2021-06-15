@@ -1,0 +1,50 @@
+baseURL: 'https://demery-pivotal.github.io'
+languageCode: en-us
+title: Potato Stones
+theme: geekblog
+pygmentsUseClasses: true
+pygmentsCodeFences: true
+disablePathToLower: true
+enableGitInfo: true
+markup:
+    goldmark:
+        renderer:
+            unsafe: true
+        tableOfContents:
+            startLevel: 1
+            endLevel: 9
+taxonomies: {}
+mediaTypes:
+    application/atom+xml:
+        suffixes:
+            - xml
+outputFormats:
+    Atom:
+        name: Atom
+        mediaType: application/atom+xml
+        baseName: atom
+        isPlainText: false
+        rel: alternate
+        isHTML: false
+        noUgly: true
+        permalinkable: false
+outputs:
+    home:
+        - HTML
+        - ATOM
+    page:
+        - HTML
+    section:
+        - HTML
+    taxonomy:
+        - HTML
+    term:
+        - HTML
+        - ATOM
+params:
+    subtitle: Dale Emery's Apache Geode Development Blog
+    description: Dale Emery's Apache Geode Development Blog
+    keywords: []
+    images: []
+    logo: images/logo.png
+
