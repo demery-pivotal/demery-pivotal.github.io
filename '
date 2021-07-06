@@ -15,24 +15,30 @@ make its dependencies explicit.
 
 Testability = controllability + observability.
 
-To test a class, we:
+Suppose that the thing we want to test
+--- the system under test (SUT) ---
+is an object of some Java class.
 
-1. Establish some preconditions
-    in an object that is an instance of the class,
+To test an object of some class, we:
+
+1. Establish any relevant preconditions
+    in the object,
     in the object's collaborators,
-    or elsewhere in the environment.
+    or elsewhere in the object's environment.
 1. Send the object a message
     that triggers it to carry out
     the responsibility we're testing.
 1. Observe the results
     that the object produced.
 
-The first step requires us to
+Step 1 requires us to
 control the variables
 that influence the object's behavior.
-The third step requires us to
+Step 3 requires us to
 observe the variables
 affected by the object.
+(Note that by _variable_ I mean
+[_anything that can vary_](https://vimeo.com/34356209).)
 
 The easier it is to control and observe
 the variables involved in the class's responsibilities,
@@ -49,17 +55,18 @@ that are not mentioned explicitly
 in the class's public interface.
 
 Tacit dependencies include any collaborator
-that the object obtains by:
+that the object:
 
--   Creating it.
--   Calling a static method of another class.
--   Reading a static field of another class.
--   Interacting with collaborator obtained
-    in one of these ways.
+-   Creates via `new`.
+-   Obtains from a static source.
 
 ## How Tacit Dependencies Make Testing Harder
 
 Tacit dependencies make a class harder to test.
+If the state or behavior of a collaborator affects
+how an object carries out its responsibilities,
+
+
 Here are some examples from `PartitionedRegion`'s constructor.
 
 ### Creating a tacit dependency
@@ -69,7 +76,9 @@ this.prStats = new PartitionedRegionStats(cache.getDistributedSystem(), getFullP
         statisticsClock);
 ```
 
-Note that `PartitionedRegion` has no need for the `statisticsClock` parameter
+Note that calling this constructor
+introduces an _unnecessary_ dependency.
+`PartitionedRegion` has no need for the `statisticsClock` parameter
 other than to forward it to the `PartitionedRegionStats` constructor.
 If instead the stats instance were passed as a parameter,
 the `PartitionedRegion` constructor
@@ -77,9 +86,8 @@ would have no need for a `statisticsClock` parameter at all.
 
 ### Obtaining a dependency by calling a static method on another class
 ```java
-    // Warning: potential early escape of instance
-    this.distAdvisor = RegionAdvisor.createRegionAdvisor(this);
-
+// Warning: potential early escape of instance
+this.distAdvisor = RegionAdvisor.createRegionAdvisor(this);
 ```
 
 This makes _every instance_ of `PartitionedRegion` dependent on
@@ -88,10 +96,15 @@ whatever implementation `RegionAdvisor` chooses to create.
 The comment raises another concern.
 I'll leave that for another day.
 
-### Obtaining a dependency by interacting with any non-parameter object
+### Obtaining a dependency via a non-parameter object
 ```java
 ```
 
 
 ## To Make a Class More Testable, Make its Dependencies Explicit
 
+# Notes
+
+- A factory with parameters is probably coupled to the constructor of a particular implementation.
+- Where should the factory interface be defined?
+    - Defining it in the implementation tangles it up with the implementation.
