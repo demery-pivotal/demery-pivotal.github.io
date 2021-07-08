@@ -1,0 +1,101 @@
+@startuml
+
+' The class
+class "PartitionedRegion" as pr
+
+' Explicit dependencies
+interface "InternalCache" as cache
+interface "StatisticsClock" as clock
+interface ColocationLoggerFactory
+
+pr *-- cache
+pr *-- clock
+pr *-- ColocationLoggerFactory
+
+' Tacit dependencies
+class StatisticsTypeFactoryImpl <<Singleton>>
+class StatisticsDescriptor <<New>>
+class StatisticsType <<Singleton Factory>>
+class Statistics <<Singleton Factory>>
+
+class DiskRegionStats <<New>>
+pr *-- DiskRegionStats
+DiskRegionStats --> StatisticsTypeFactoryImpl
+DiskRegionStats *-- StatisticsDescriptor
+DiskRegionStats *-- StatisticsType
+DiskRegionStats *-- Statistics
+
+class "Node" as node <<New>>
+pr *-- node
+
+class StoppableReadLock <<New>>
+class StoppableWriteLock <<New>>
+class ReentrantReadWriteLock <<New>>
+
+class StoppableReentrantReadWriteLock <<New>>
+StoppableReentrantReadWriteLock *-- ReentrantReadWriteLock
+StoppableReentrantReadWriteLock *-- StoppableReadLock
+StoppableReentrantReadWriteLock *-- StoppableWriteLock
+pr *-- StoppableReentrantReadWriteLock
+
+class PartitionedRegionDataStore <<Static Factory>>
+pr *-- PartitionedRegionDataStore
+
+class "PartitionRegionConfigValidator" as configValidator <<New>>
+pr *-- configValidator
+
+class "PartitionedRegionDataView" as dataView <<New>>
+pr *-- dataView
+
+class "PartitionedRegionRedundancyTracker" as redundancyTracker <<New>>
+pr *-- redundancyTracker
+
+class PartitionedRegionStats <<New>>
+pr *-- PartitionedRegionStats
+PartitionedRegionStats --> StatisticsTypeFactoryImpl
+PartitionedRegionStats *-- StatisticsDescriptor
+PartitionedRegionStats *-- StatisticsType
+PartitionedRegionStats *-- Statistics
+
+class RegionStatus <<New>>
+class StartupStatus <<New>>
+class PersistentBucketRecoverer <<New>>
+PersistentBucketRecoverer *-- RegionStatus
+PersistentBucketRecoverer *-- StartupStatus
+
+class PartitionedRegionRebalanceOp <<New>>
+class OneTaskOnlyExecutor <<New>>
+
+class PRHARedundancyProvider <<New>>
+PRHARedundancyProvider *-- PersistentBucketRecoverer
+PRHARedundancyProvider *-- PartitionedRegionRebalanceOp
+PRHARedundancyProvider *-- OneTaskOnlyExecutor
+
+pr *-- PRHARedundancyProvider
+
+class "PRPersistentConfig" as persistentConfig <<New>>
+pr *-- persistentConfig
+
+class ProfileListener <<New>>
+pr *-- ProfileListener
+
+class RegionAdvisor <<Static Factory>>
+pr *-- RegionAdvisor
+
+class RegionLogger <<Static Method>>
+pr --> RegionLogger
+
+class LoggingThreadFactory <<New>>
+class ScheduledThreadPoolExecutor <<New>>
+
+interface ScheduledExecutorService <<Static Method>>
+ScheduledExecutorService *-- LoggingThreadFactory
+ScheduledExecutorService *-- ScheduledThreadPoolExecutor
+
+pr *-- ScheduledExecutorService
+
+class SenderIdMonitor <<Static Factory>>
+pr *-- SenderIdMonitor
+
+@enduml
+
