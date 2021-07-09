@@ -1,68 +1,100 @@
+' vim: set tabstop=4 softtabstop=4 noexpandtab :
 @startmindmap
 
+title A Subset of PartitionedRegion Dependencies
+
 * PartitionedRegion
+	* //InternalCache//
+		*_ injected
 
-** InternalCache
-***_ interface
-***_ injected
+	* //StatisticsClock//
+		*_ injected
 
-**  StatisticsClock
-***_ interface
-***_ injected
+	* //ColocationLoggerFactory//
+		*_ injected
 
-** ColocationLoggerFactory
-***_ interface
-***_ injected
+	* **DiskRegionStats**
+		*_ new
+		* **StatisticsTypeFactoryImpl**
+			*_ static singleton
+		* **StatisticsDescriptorImpl**
+			*_ factory (static singleton)
+		* **StatisticsTypeImpl**
+			*_ factory (static singleton)
+		* //Statistics//
+			*_ factory (acquired via a method chain)
 
-** DiskRegionStats
-***_ class
-***_ new
-*** StatisticsTypeFactoryImpl singleton
-*** StatisticsDescriptor new
-*** StatisticsType singleton factory
-*** Statistics singleton factory
+	* **Node**
+		*_ new
 
-** Node new
 
-** StoppableReentrantReadWriteLock new
-*** ReentrantReadWriteLock new
-*** StoppableReadWriteLock new
-*** StoppableWriteLock new
+	* **PartitionedRegionDataStore**
+		*_ static implementation method
 
-** PartitionedRegionDataStore static factory
+	* **PartitionedRegionConfigValidator**
+		*_ new
 
-** PartitionedRegionConfigValidator new
+	* **PartitionedRegionDataView**
+		*_ new
 
-** PartitionedRegionDataView new
+	* **PartitionedRegionRedundancyTracker**
+		*_ new
 
-** PartitionedRegionRedundancyTracker new
+	* **PartitionedRegionStats**
+		*_ new
+		* **StatisticsTypeFactoryImpl**
+			*_ static singleton
+		* **StatisticsDescriptorImpl**
+			*_ factory (static singleton)
+		* **StatisticsTypeImpl**
+			*_ factory (static singleton)
+		* //Statistics//
+			*_ factory (acquired via a method chain)
 
-** PartitionedRegionStats new
-*** StatisticsTypeFactoryImpl singleton
-*** StatisticsDescriptor new
-*** StatisticsType singleton factory
-*** Statistics singleton factory
+	* **PRHARedundancyProvider**
+		*_ new
+		* **PersistentBucketRecoverer**
+			*_ new
+			* **RegionStatus**
+				*_ new
+			* **StartupStatus**
+				*_ new
+		* **PartitionedRegionRabalanceOp**
+			*_ new
+			*_ many additional dependencies when it runs
+		* **OneTaskOnlyExecutor**
+			*_ new
 
-** PRHARedundancyProvider new
-*** PersistentBucketRecoverer new
-**** RegionStatus new
-**** StartupStatus new
-*** PartitionedRegionRabalanceOp new
-*** OneTaskOnlyExecutor new
+	* **PRPersistentConfig**
+		*_ new
 
-** PRPersistentConfig new
+	* **ProfileListener**
+		*_ new
 
-** ProfileListener new
+	* **RegionAdvisor**
+		*_ static implementation method
 
-** RegionAdvisor static factory
+	* **RegionLogger (Class)**
+		*_ PartitionedRegion collaborates via static method
 
-** RegionLogger class (pr calls static method(
+	* **ScheduledExecutorService**
+		*_ static helper method
+		* **LoggingThreadFactory**
+			*_ new
+		* **ScheduledThreadPoolExecutor**
+			*_ new
 
-** ScheduledExecutorService static method
-*** LoggingThreadFactory new
-*** ScheduledThreadPoolExecutor
+	* **SenderIdMonitor**
+		*_ static implementation method
 
-** SenderIdMonitor
+	* **StoppableReentrantReadWriteLock**
+		*_ new
+		* **ReentrantReadWriteLock**
+			*_ new
+		* **StoppableReadWriteLock**
+			*_ new
+		* **StoppableWriteLock**
+			*_ new
 
 @endmindmap
 
