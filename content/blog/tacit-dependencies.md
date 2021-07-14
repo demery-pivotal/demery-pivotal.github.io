@@ -16,10 +16,8 @@ make its dependencies explicit.
 
 ## Testability
 
-Suppose we want to test a Java object,
-an instance of some Java class.
+Suppose we want to test an instance of some Java class.
 To do that, we:
-
 1. Establish any relevant preconditions
     in the object,
     in the object's collaborators,
@@ -37,7 +35,7 @@ Step 3 requires us to
 _observe_ the variables
 affected by the object as it carries out its responsibilities.
 (Note that by _variable_ I mean
-[_anything that can vary_](https://vimeo.com/34356209).)
+_anything that can vary[^variables]._
 
 > **Testability = controllability + observability.**
 
@@ -46,6 +44,10 @@ the variables involved in an object's responsibilities,
 the easier the object is to test.
 The harder it is to control and observe those variables,
 the harder the object is to test.
+
+Below, we will
+use `PartitionedRegion`
+[as an example](#testing-partitionedregion-virtualput).
 
 
 
@@ -64,30 +66,6 @@ any collaborators that the object:
 -   Creates via `new`.
 -   Obtains from a static source.
 
-Examples abound in Geode code.
-The `PartitionedRegion` class's constructor
-alone
-includes multiple examples
-of each.
-
-On lines [lines 791-2](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L791-L792)
-the constructor creates a collaborator by calling `new`:
-
-```java
-this.prStats = new PartitionedRegionStats(cache.getDistributedSystem(), getFullPath(),
-        statisticsClock);
-```
-
-And on [line 813](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L813)
-the constructor obtains a collaborator
-by calling a static method
-of another class:
-
-```java
-this.distAdvisor = RegionAdvisor.createRegionAdvisor(this);
-```
-
-
 
 
 
@@ -101,8 +79,7 @@ by inhibiting tests' ability to:
 -   Observe the results
     that the object produced.
 
-### Tacit Dependencies Inhibit Control
-
+### How Tacit Dependencies Inhibit Control
 
 If the responsibiilty we're testing
 depends on how a collaborator responds,
@@ -113,49 +90,148 @@ depends on its state,
 the test must control the collaborator's state.
 
 Classes that create tacit dependencies
-often keep them private.
-Tests cannot control these dependencies directly,
-and may not be able to control them even indirectly.
-
-Tacit dependencies are often not directly accessible.
-An object might create a collaborator
-and assign it to a private field.
-Or it might create a collaborator,
+often assign them to private fields.
+Or a method might create a collaborator,
 interact with it,
 and discard it.
+Tests cannot control these private dependencies directly,
+and may not be able to control them even indirectly.
+Even if a class exposes a tacit dependency
+through a getter,
+the complexity of a real, production-ready collaborator
+can be difficult for a test to control.
 
-### Tacit Dependencies Inhibit Observation
+Each of an object's tacit collaborators
+essentially becomes _part of the object's state._
+If a responsibility
+depends on the state of the object,
+the inaccessibility and complexity of these collaborators
+make it very difficult
+to write a test
+that puts the object in an appropriate state.
+
+### How Tacit Dependencies Inhibit Observation
+
+TODO
+
+### Transitive Tacit Dependencies
+
+If an object tacitly depends on collaborators,
+and those collaborators tacitly depend on yet more collaborators,
+our object becomes increasingly difficult to test.
+
+## To Make a Class More Testable, Make its Dependencies Explicit
+
+TODO
 
 
+## Examples
 
+### Tacit Dependencies in PartitionedRegion
 
-## Examples from Geode Code
+`PartitionedRegion` creates dozens of tacit dependencies.
+The constructor alone
+includes multiple examples
+of tacit dependencies.
+Here are several examples.
 
-Here are some examples of tacit dependencies from `PartitionedRegion`'s constructor.
-
-### Creating Tacit Dependencies
-
-Note that calling this constructor
-introduces an _unnecessary_ dependency.
-`PartitionedRegion` has no need for the `statisticsClock` parameter
-other than to forward it to the `PartitionedRegionStats` constructor.
-If instead the stats instance were passed as a parameter,
-the `PartitionedRegion` constructor
-would have no need for a `statisticsClock` parameter at all.
-
-### Obtaining Tacit Dependencies from Static Sources
+The constructor creates a `RegionAdvisor`
+[by calling a static method](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L813)
+on the implementation class:
 
 ```java
 this.distAdvisor = RegionAdvisor.createRegionAdvisor(this);
 ```
 
-This makes _every instance_ of `PartitionedRegion` dependent on
-whatever implementation `RegionAdvisor` chooses to create.
+This makes the `PartitionedRegion` class
+tacitly depend on the `createRegionAdvisor()` method's choices
+of which implementation to create
+and how to configure it.
+
+A few lines later it creates a `PRHARedundancyProvider`
+[by calling `new`](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L816):
+
+```java
+this.redundancyProvider = new PRHARedundancyProvider(this, cache.getInternalResourceManager());
+```
+
+This makes `PartitionedRegion`
+tacitly depend on a _specific implementation_ of redundancy provider
+and, transitively,
+on every tacit dependency of that specific implementation.
+
+The constructor is not the only place where `PartitionedRegion`
+tacitly creates the collaborators it depends on.
+During initialization,
+the `initializeDataStore()` method
+creates a `PartitionedRegionDataStore`
+[by calling `new`](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L1375-L1377):
+
+```java
+this.dataStore =
+    PartitionedRegionDataStore.createDataStore(cache, this, ra.getPartitionAttributes(),
+        getStatisticsClock());
+```
+
+Numerous other `PartitionedRegion` methods
+create additional tacit dependencies.
+In all,
+a `PartitionedRegion` creates dozens of tacit dependencies.
+
+
+### Testing PartitionedRegion virtualPut()
+
+**A responsibility.**
+The `PartitionedRegion` class's `virtualPut()` method
+has the responsibility
+to send a predefined message
+to a predefined destination
+so that the system
+remembers the new value for the key.
+
+The choice of destination for each message
+depends on the state of the partitioned region:
+If the region has a data store,
+the destination is the data store.
+Otherwise the destination is
+a remote member.
+
+
+The choice of message to send
+depends on the parameters passed to `virtualPut()`:
+If `isNew` is `true`,
+the region must send a _create_ message to the destination.
+Otherwise it must send a _put_ message.
+
+
+**A test.**
+Consider a test
+for a single combination of conditions and inputs:
+- Conditions: The partitioned region has a data store.
+- Inputs: The caller calls `virtualPut()`,
+    passing `true` as the argument to `ifNew`.
+- Results: The partitioned region
+    must call the data store's `createLocally()` method,
+    passing (mostly) the same arguments that were passed to `virtualPut()`.
+
+To test this responsibility,
+the test must:
+- **control** whether the partitioned region has a data store.
+- **observe** what message the partitioned region sent, and to what destination.
+
+### How Tacit Dependencies Inhibit Testing PartitionedRegion
+
+Two of `PartitionedRegion`'s tacit dependencies in particular
+make it difficult to write this test:
+The redundancy provider
+and the data store.
+
+The region has a getter that makes its data store accessible.
 
 
 
 
-## To Make a Class More Testable, Make its Dependencies Explicit
+
 
 
 
@@ -164,3 +240,8 @@ whatever implementation `RegionAdvisor` chooses to create.
 there are other ways
 that are more complicated or more subtle.
 I'll leave those for another day.
+
+[^variables]: [Testing With Variables](https://vimeo.com/34356209)
+demonstrates how even the simplest software
+involves a multitude of variables.
+
