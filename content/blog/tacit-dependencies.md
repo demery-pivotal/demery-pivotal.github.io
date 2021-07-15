@@ -127,58 +127,6 @@ TODO
 
 ## Examples
 
-### Tacit Dependencies in PartitionedRegion
-
-`PartitionedRegion` creates dozens of tacit dependencies.
-The constructor alone
-includes multiple examples
-of tacit dependencies.
-Here are several examples.
-
-The constructor creates a `RegionAdvisor`
-[by calling a static method](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L813)
-on the implementation class:
-
-```java
-this.distAdvisor = RegionAdvisor.createRegionAdvisor(this);
-```
-
-This makes the `PartitionedRegion` class
-tacitly depend on the `createRegionAdvisor()` method's choices
-of which implementation to create
-and how to configure it.
-
-A few lines later it creates a `PRHARedundancyProvider`
-[by calling `new`](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L816):
-
-```java
-this.redundancyProvider = new PRHARedundancyProvider(this, cache.getInternalResourceManager());
-```
-
-This makes `PartitionedRegion`
-tacitly depend on a _specific implementation_ of redundancy provider
-and, transitively,
-on every tacit dependency of that specific implementation.
-
-The constructor is not the only place where `PartitionedRegion`
-tacitly creates the collaborators it depends on.
-During initialization,
-the `initializeDataStore()` method
-creates a `PartitionedRegionDataStore`
-[by calling `new`](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L1375-L1377):
-
-```java
-this.dataStore =
-    PartitionedRegionDataStore.createDataStore(cache, this, ra.getPartitionAttributes(),
-        getStatisticsClock());
-```
-
-Numerous other `PartitionedRegion` methods
-create additional tacit dependencies.
-In all,
-a `PartitionedRegion` creates dozens of tacit dependencies.
-
-
 ### Testing PartitionedRegion virtualPut()
 
 **A responsibility.**
@@ -219,6 +167,46 @@ the test must:
 - **control** whether the partitioned region has a data store.
 - **observe** what message the partitioned region sent, and to what destination.
 
+### Tacit Dependencies in PartitionedRegion
+
+`PartitionedRegion` creates dozens of tacit dependencies
+some in its constructor,
+some during subsequent initialization,
+and yet others in methods
+called later.
+
+Here are two tacit dependencies
+that inhibit the test we want to write.
+
+The constructor creates a `PRHARedundancyProvider`
+[by calling `new`](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L816):
+
+```java
+this.redundancyProvider = new PRHARedundancyProvider(this, cache.getInternalResourceManager());
+```
+
+This makes `PartitionedRegion`
+tacitly depend on a _specific implementation_ of redundancy provider
+and, transitively,
+on every tacit dependency of that specific implementation.
+
+During initialization,
+the `initializeDataStore()` method
+creates a `PartitionedRegionDataStore`
+[by calling `new`](https://github.com/apache/geode/blob/0ea005d5d7d1deb5ebe9639b34b0294af577b51d/geode-core/src/main/java/org/apache/geode/internal/cache/PartitionedRegion.java#L1375-L1377):
+
+```java
+this.dataStore =
+    PartitionedRegionDataStore.createDataStore(cache, this, ra.getPartitionAttributes(),
+        getStatisticsClock());
+```
+
+Numerous other `PartitionedRegion` methods
+create additional tacit dependencies.
+In all,
+a `PartitionedRegion` creates dozens of tacit dependencies.
+
+
 ### How Tacit Dependencies Inhibit Testing PartitionedRegion
 
 Two of `PartitionedRegion`'s tacit dependencies in particular
@@ -228,6 +216,15 @@ and the data store.
 
 The region has a getter that makes its data store accessible.
 
+# Improve Testability by Making Dependencies Explicit
+
+**Mock complex collaborators.** If a collaborator's state is complex enough to inhibit control and observation, use mocks instead of real collaborators to make control and observation easier.
+
+**Inject dependencies.** Dependency injection allows tests to configure real or fake collaborators to make them easier to control and observe.
+
+**Use factories to create collaborators.** Sometimes creating a collaborator requires information computed by the object being tested. In these cases, inject a factory for the object to use to create the collaborator. The test can configure the factory to return a collaborator that the test can easily control and observe.
+
+**Extract cumbersome responsibilities.** Sometimes an implementation method creates tacit dependencies. Consider extracting that method's responsibilities into a separate class. That class then becomes a *collaborator* of the class under test, which allows a test to supply a more controllable and observable implementation.
 
 
 
