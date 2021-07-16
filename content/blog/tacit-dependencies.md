@@ -4,7 +4,7 @@ draft: true
 ---
 
 Code becomes difficult to test
-when it is coupled to dependencies
+when it depends on collaborators
 that are hard to control and observe.
 Tacit dependencies are hard to control and observe.
 To make a class easier to test,
@@ -16,7 +16,9 @@ make its dependencies explicit.
 
 ## Testability
 
-Suppose we want to test an instance of some Java class.
+Suppose we want to test an instance of some Java class
+(Geode's `PartitionedRegion` class
+[for example](#testing-partitionedregion-virtualput)).
 To do that, we:
 1. Establish any relevant preconditions
     in the object,
@@ -26,7 +28,8 @@ To do that, we:
     that triggers it to carry out
     the responsibility we're testing.
 1. Observe the results
-    that the object produced.
+    that the object produced
+    and compare them to the planned results.
 
 Step 1 requires us to
 _control_ the variables
@@ -35,7 +38,7 @@ Step 3 requires us to
 _observe_ the variables
 affected by the object as it carries out its responsibilities.
 (Note that by _variable_ I mean
-_anything that can vary[^variables]._
+_anything that can vary[^variables]._)
 
 > **Testability = controllability + observability.**
 
@@ -44,10 +47,6 @@ the variables involved in an object's responsibilities,
 the easier the object is to test.
 The harder it is to control and observe those variables,
 the harder the object is to test.
-
-Below, we will
-use `PartitionedRegion`
-[as an example](#testing-partitionedregion-virtualput).
 
 
 
@@ -112,7 +111,35 @@ that puts the object in an appropriate state.
 
 ### How Tacit Dependencies Inhibit Observation
 
-TODO
+When testing an object,
+a test might want to make two kinds of observations
+about the object's collaborators:
+
+- What messages the object sent to the collaborator.
+- What state the collaborator is in.
+
+Tacit dependencies inhibit these observations.
+
+If the object keeps the collaborator private,
+the test has no way to observe its state directly.
+The only way to observe
+whether the collaborator ended up in the correct state
+is by _inferring it_
+from how it influences the object under test's
+subsequent behavior.
+This sort of inference
+always depends on the specific implementation of the collaborator.
+
+Even if the object under test
+exposes a collaborator via a getter,
+the collaborator itself may be complex enough
+that its state is difficult to observe directly.
+
+The essential responsibility of the object under test
+is _not_ to put its collaborators into the proper state.
+It is to _send the right messages_ to its collaborators.
+It is the collaborators' responsibility
+to get themselves into the correct state.
 
 ### Transitive Tacit Dependencies
 
@@ -120,14 +147,14 @@ If an object tacitly depends on collaborators,
 and those collaborators tacitly depend on yet more collaborators,
 our object becomes increasingly difficult to test.
 
-## To Make a Class More Testable, Make its Dependencies Explicit
+## To Make a Class More Testable, Make its Dependencies Directly Controllable and Observable
 
 TODO
 
 
 ## Examples
 
-### Testing PartitionedRegion virtualPut()
+### Testing PartitionedRegion's virtualPut() method
 
 **A responsibility.**
 The `PartitionedRegion` class's `virtualPut()` method
@@ -141,9 +168,8 @@ The choice of destination for each message
 depends on the state of the partitioned region:
 If the region has a data store,
 the destination is the data store.
-Otherwise the destination is
-a remote member.
-
+Otherwise the destination is the cluster member
+that hosts the primary bucket for the entry.
 
 The choice of message to send
 depends on the parameters passed to `virtualPut()`:
@@ -151,16 +177,24 @@ If `isNew` is `true`,
 the region must send a _create_ message to the destination.
 Otherwise it must send a _put_ message.
 
+Here is a summary of the responsibility:
+
+Has data store? | `isNew` | Response
+-|-|-|
+yes | true | send a "create" message to the data store
+yes | false | send a "put" message to the data store
+no | true | send a "create" message to the member that hosts the primary bucket
+no | false | send a "put" message to the member that hosts the primary bucket
 
 **A test.**
-Consider a test
-for a single combination of conditions and inputs:
-- Conditions: The partitioned region has a data store.
-- Inputs: The caller calls `virtualPut()`,
-    passing `true` as the argument to `ifNew`.
-- Results: The partitioned region
-    must call the data store's `createLocally()` method,
-    passing (mostly) the same arguments that were passed to `virtualPut()`.
+Consider a test for for the first row of that table:
+- Conditions:
+    The partitioned region has a data store.
+- Inputs:
+    `ifNew` is `true`.
+- Response:
+    The partitioned region
+    must call the data store's `createLocally()` method.
 
 To test this responsibility,
 the test must:
@@ -190,6 +224,9 @@ tacitly depend on a _specific implementation_ of redundancy provider
 and, transitively,
 on every tacit dependency of that specific implementation.
 
+TODO: List the tree of dependencies dragged in by `PRHARedundancyProvider`,
+and describe how that affects control and observation.
+
 During initialization,
 the `initializeDataStore()` method
 creates a `PartitionedRegionDataStore`
@@ -206,6 +243,11 @@ create additional tacit dependencies.
 In all,
 a `PartitionedRegion` creates dozens of tacit dependencies.
 
+TODO: Is it the PR's responsibility to get the data store into the right state?
+The data store already handles a great deal of that responsibility...
+as long as it's called with the appropriate arguments.
+Maybe we can let PR focus on _calling the data store_ correctly,
+and leave it to the data store to actually do the storage.
 
 ### How Tacit Dependencies Inhibit Testing PartitionedRegion
 
