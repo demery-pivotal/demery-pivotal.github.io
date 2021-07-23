@@ -116,7 +116,8 @@ a test might want to make two kinds of observations
 about the object's collaborators:
 
 - What messages the object sent to the collaborator.
-- What state the collaborator is in.
+- What state the collaborator is in
+    as a result of the object interacting with it.
 
 Tacit dependencies inhibit these observations.
 
@@ -143,13 +144,33 @@ to get themselves into the correct state.
 
 ### Transitive Tacit Dependencies
 
+Transitive tacit dependencies compound all of these challenges.
 If an object tacitly depends on collaborators,
 and those collaborators tacitly depend on yet more collaborators,
-our object becomes increasingly difficult to test.
+the collaborators become more difficult to control and observe.
+An otherwise straightforward test
+might have to control or observe the object's collaborators,
+its collaborators' collaborators,
+its collaborators' collaborators' collaborators,
+and so on.
 
-## To Make a Class More Testable, Make its Dependencies Directly Controllable and Observable
+## To Increase Testability, Inject Dependencies
 
-TODO
+If a class has tacit dependencies that inhibit testing,
+an effective way to make it more testable
+is to make its dependencies explicit.
+Make them an explicit part of the interface to the class.
+A key technique for this is *dependency injection.*
+
+> **Dependency injection** is a technique in which an object *receives* the objects that it depends on.
+
+That is,
+rather than writing a class to *create* its collaborators,
+write it to *receive* its collaborators
+through perameters to constructors or other methods.
+This gives tests the ability to construct collaborators that they can more readily control and observe.
+
+
 
 
 ## Examples
@@ -280,7 +301,8 @@ there are other ways
 that are more complicated or more subtle.
 I'll leave those for another day.
 
-[^variables]: [Testing With Variables](https://vimeo.com/34356209)
+[^variables]: [Testing With Variables](https://vimeo.com/34356209),
+a 20-minute video by Elisabeth Hendrickson and me,
 demonstrates how even the simplest software
 involves a multitude of variables.
 
