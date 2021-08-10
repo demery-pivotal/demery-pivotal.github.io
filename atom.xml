@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://gohugo.io/" version="0.87.0">Hugo</generator><title type="html">Potato Stones</title><subtitle type="html">Dale Emery's Apache Geode Development Blog</subtitle><link href="https://demery-pivotal.github.io/" rel="alternate" type="text/html" title="HTML"/><link href="https://demery-pivotal.github.io/atom.xml" rel="self" type="application/atom+xml" title="Atom"/><updated>2021-08-10T18:24:00+00:00</updated><id>https://demery-pivotal.github.io/</id><entry><title type="html">Diagnosing Intermittent Failures</title><link href="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/?utm_source=atom_feed" rel="alternate" type="text/html" hreflang="en"/><id>https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/</id><published>2021-08-10T00:00:00+00:00</published><updated>2021-08-10T11:23:37-07:00</updated><content type="html"><![CDATA[<p>To diagnose a frustrating intermittent failure, start by distinguishing three key ideas: failure, fault, and conditions. Then take a systematic approach to exploring the conditions and seeking the fault.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://gohugo.io/" version="0.87.0">Hugo</generator><title type="html">Potato Stones</title><subtitle type="html">Dale Emery's Apache Geode Development Blog</subtitle><link href="https://demery-pivotal.github.io/" rel="alternate" type="text/html" title="HTML"/><link href="https://demery-pivotal.github.io/atom.xml" rel="self" type="application/atom+xml" title="Atom"/><updated>2021-08-10T18:31:39+00:00</updated><id>https://demery-pivotal.github.io/</id><entry><title type="html">Diagnosing Intermittent Failures</title><link href="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/?utm_source=atom_feed" rel="alternate" type="text/html" hreflang="en"/><id>https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/</id><published>2021-08-10T00:00:00+00:00</published><updated>2021-08-10T11:31:22-07:00</updated><content type="html"><![CDATA[<p>To diagnose a frustrating intermittent failure, start by distinguishing three key ideas: failure, fault, and conditions. Then take a systematic approach to exploring the conditions and seeking the fault.</p>
 <div class="gblog-post__anchorwrap">
-    <h1 id="anatomy-of-an-intermittent-failure">
+    <h2 id="anatomy-of-an-intermittent-failure">
         Anatomy of an Intermittent Failure
         <a data-clipboard-text="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/#anatomy-of-an-intermittent-failure" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Anatomy of an Intermittent Failure" href="#anatomy-of-an-intermittent-failure">
             <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
         </a>
-    </h1>
+    </h2>
 </div><p>An intermittent failure always includes these three parts: <em>Failure</em>, <em>Fault</em>, and <em>Conditions</em>.</p>
 <ul>
 <li>A <strong>failure</strong> is an incorrect result.</li>
@@ -14,12 +14,12 @@
 </ul>
 <p>An <strong>intermittent failure</strong> means that some component has a fault that under some conditions causes a failure.</p>
 <div class="gblog-post__anchorwrap">
-    <h1 id="laws-of-intermittent-failures">
+    <h2 id="laws-of-intermittent-failures">
         Laws of Intermittent Failures
         <a data-clipboard-text="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/#laws-of-intermittent-failures" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Laws of Intermittent Failures" href="#laws-of-intermittent-failures">
             <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
         </a>
-    </h1>
+    </h2>
 </div><blockquote>
 <p>If there&rsquo;s a failure, there&rsquo;s a fault.</p>
 </blockquote>
@@ -37,21 +37,21 @@
 </blockquote>
 <p>We call a failure <em>intermittent</em> only when we cannot produce it at will. We cannot produce the failure at will because at least one relevant condition is not under our control. And very often we don&rsquo;t even know what the relevant conditions are.</p>
 <div class="gblog-post__anchorwrap">
-    <h1 id="diagnosing-with-variables">
+    <h2 id="diagnosing-with-variables">
         Diagnosing with Variables
         <a data-clipboard-text="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/#diagnosing-with-variables" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Diagnosing with Variables" href="#diagnosing-with-variables">
             <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
         </a>
-    </h1>
+    </h2>
 </div><p>Sometimes you can diagnose an intermittent failure quickly, guided by your intuition and expertise. But if you&rsquo;re frustrated, that&rsquo;s a sign that some important condition is outside of your control, and perhaps not yet in your awareness.</p>
 <p>Consider trying this systematic approach to diagnosis, to generate a richer set of ideas to power your intuition and expertise.</p>
 <div class="gblog-post__anchorwrap">
-    <h2 id="step-1-brainstorm-variables">
+    <h3 id="step-1-brainstorm-variables">
         Step 1: Brainstorm Variables
         <a data-clipboard-text="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/#step-1-brainstorm-variables" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Step 1: Brainstorm Variables" href="#step-1-brainstorm-variables">
             <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
         </a>
-    </h2>
+    </h3>
 </div><p>Write down every variable you can think of that could possibly be involved. By <em>variable,</em> I don&rsquo;t mean just the things you might declare in some source code. I mean <em>anything that could vary.</em><sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>
 For this step in particular, it&rsquo;s often helpful to team up with a few other people.</p>
 <p>During this brainstorming step, do not limit yourself to variables that you think are <em>likely</em> to be involved. Accept any variable that could <em>possibly</em> be involved… and don&rsquo;t be too quick to conclude that a variable could <em>not</em> be involved. If you think of it, write it down. We will assess the utility of these variables in a later step.</p>
@@ -64,43 +64,43 @@ For this step in particular, it&rsquo;s often helpful to team up with a few othe
 <li><strong>Look for states, durations, and the order of events.</strong> Intermittent failures very often arise when a specific event occurs while some part of the system is in a specific state.</li>
 </ul>
 <div class="gblog-post__anchorwrap">
-    <h2 id="step-2-categorize-the-variables">
+    <h3 id="step-2-categorize-the-variables">
         Step 2: Categorize the Variables
         <a data-clipboard-text="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/#step-2-categorize-the-variables" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Step 2: Categorize the Variables" href="#step-2-categorize-the-variables">
             <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
         </a>
-    </h2>
+    </h3>
 </div><p>Organize the variables into categories (and sub-categories, and sub-sub-categories, …), using whatever criteria seem appropriate.</p>
 <p>As you categorize, you will very likely think of additional variables. Write them down and include them in your categorization.</p>
 <p>You may want to use mind-mapping software or outlining software for this. Any tool that helps you categorize the variables will do.</p>
 <p>Instead of categorizing, or in addition, you may want to create a graph of how the variables affect each other. Any kind of model helps you understand the relevant variables will do.</p>
 <div class="gblog-post__anchorwrap">
-    <h2 id="step-3-select-a-variable">
+    <h3 id="step-3-select-a-variable">
         Step 3: Select a Variable
         <a data-clipboard-text="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/#step-3-select-a-variable" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Step 3: Select a Variable" href="#step-3-select-a-variable">
             <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
         </a>
-    </h2>
+    </h3>
 </div><p>Assess the categories and pick the one whose seem most likely to affect the results.</p>
 <p>Assess the variables in the selected category and pick the one that seems most likely to affect the results.</p>
 <div class="gblog-post__anchorwrap">
-    <h2 id="step-4-experiment-by-varying-the-variable">
+    <h3 id="step-4-experiment-by-varying-the-variable">
         Step 4: Experiment by Varying the Variable
         <a data-clipboard-text="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/#step-4-experiment-by-varying-the-variable" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Step 4: Experiment by Varying the Variable" href="#step-4-experiment-by-varying-the-variable">
             <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
         </a>
-    </h2>
+    </h3>
 </div><p>Assess the possible values of the selected variable and pick one that seems most likely to increase your understanding of what is happening.</p>
 <p>Gain control of the selected variable<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>, and arrange for it to have the selected value.</p>
 <p>Run the test, or exercise the system in some other way, and observe the results.</p>
 <p>Repeat with different values for the selected variable as long as it seems fruitful.</p>
 <div class="gblog-post__anchorwrap">
-    <h2 id="step-5-repeat-as-necessary">
+    <h3 id="step-5-repeat-as-necessary">
         Step 5: Repeat as Necessary
         <a data-clipboard-text="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/#step-5-repeat-as-necessary" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Step 5: Repeat as Necessary" href="#step-5-repeat-as-necessary">
             <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
         </a>
-    </h2>
+    </h3>
 </div><p>Given what you&rsquo;ve learned from your experiments so far, return to whatever earlier step is most likely to increase your understanding.</p>
 <section class="footnotes" role="doc-endnotes">
 <hr>
