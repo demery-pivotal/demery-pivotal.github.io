@@ -1,2 +1,2 @@
 # demery-pivotal.github.io
-Dale Emery's Apache Geode development site
+Dale Emery's Apache Geode development blog
