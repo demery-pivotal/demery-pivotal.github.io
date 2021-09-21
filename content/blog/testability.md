@@ -80,4 +80,4 @@ on any component it creates or that it retrieves from a hard-coded source,
 such as a static method of another class.
 Hidden dependencies can make key variables extremely difficult to control or observe.
 
-[^variables]: Note that by _variable_ I mean _anything that can vary._ [Testing With Variables](https://vimeo.com/34356209), a 20-minute video by Elisabeth Hendrickson and me, demonstrates how even the simplest software involves a multitude of variables.
+[^variables]: Note that by _variable_ I mean _anything that can vary._ For an example of how even the simplest software involves a multitude of variables, see [Testing With Variables](https://vimeo.com/34356209), a 20-minute video by Elisabeth Hendrickson and me.
