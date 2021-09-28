@@ -1,4 +1,91 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://gohugo.io/" version="0.88.1">Hugo</generator><title type="html">Potato Stones</title><subtitle type="html">Dale Emery's Apache Geode Development Blog</subtitle><link href="https://demery-pivotal.github.io/" rel="alternate" type="text/html" title="HTML"/><link href="https://demery-pivotal.github.io/atom.xml" rel="self" type="application/atom+xml" title="Atom"/><updated>2021-09-21T20:48:25+00:00</updated><id>https://demery-pivotal.github.io/</id><entry><title type="html">Diagnosing Intermittent Failures</title><link href="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/?utm_source=atom_feed" rel="alternate" type="text/html" hreflang="en"/><id>https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/</id><published>2021-08-10T00:00:00+00:00</published><updated>2021-08-10T11:31:22-07:00</updated><content type="html"><![CDATA[<p>To diagnose a frustrating intermittent failure, start by distinguishing three key ideas: failure, fault, and conditions. Then take a systematic approach to exploring the conditions and seeking the fault.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://gohugo.io/" version="0.88.1">Hugo</generator><title type="html">Potato Stones</title><subtitle type="html">Dale Emery's Apache Geode Development Blog</subtitle><link href="https://demery-pivotal.github.io/" rel="alternate" type="text/html" title="HTML"/><link href="https://demery-pivotal.github.io/atom.xml" rel="self" type="application/atom+xml" title="Atom"/><updated>2021-09-28T23:51:34+00:00</updated><id>https://demery-pivotal.github.io/</id><entry><title type="html">Testability</title><link href="https://demery-pivotal.github.io/blog/testability/?utm_source=atom_feed" rel="alternate" type="text/html" hreflang="en"/><id>https://demery-pivotal.github.io/blog/testability/</id><published>2021-09-26T00:00:00+00:00</published><updated>2021-09-28T16:50:47-07:00</updated><content type="html"><![CDATA[<p><strong>Testability</strong> is the ease of determining how well a component satisfies its responsibilities.
+A component&rsquo;s testability depends on how easy it is
+to <strong>control</strong> the variables that affect the component and
+to <strong>observe</strong> the variables affected by it.</p>
+<p>Suppose we want to test some responsibility of a technical component.
+The component might be as small as a single, standalone function
+or as large as a multi-cluster distributed cache running on multiple machines
+in different parts of the world.
+Regardless of the component&rsquo;s size,
+we test the responsibility by:</p>
+<ol>
+<li>Establishing relevant preconditions in the component and in its environment.</li>
+<li>Sending the component a message that triggers it to carry out the responsibility.</li>
+<li>Comparing the results that the system produced to the results we want.</li>
+</ol>
+<p>Step 1 requires us
+to <em>control</em> the variables<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> that affect the component
+as it carries out the responsibility.
+Step 3 requires us
+to <em>observe</em> the variables affected by the component
+as it carries out the responsibilty.</p>
+<p>The easier it is to control and observe these variables,
+the easier the component is to test.
+The harder it is to control and observe these variables,
+the harder the component is to test.</p>
+<blockquote>
+<p><strong>Testability = Controllability + Observability.</strong></p>
+</blockquote>
+<div class="gblog-post__anchorwrap">
+    <h2 id="improving-testability">
+        Improving Testability
+        <a data-clipboard-text="https://demery-pivotal.github.io/blog/testability/#improving-testability" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Improving Testability" href="#improving-testability">
+            <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
+        </a>
+    </h2>
+</div><p>To make a component more testable:</p>
+<ul>
+<li>Identify the variables that affect how the component carries out its responsibilities, and make those variables easier to control.</li>
+<li>Identify the variables affected by the component as it carries out its responsibilities, and make those variables easier to observe.</li>
+</ul>
+<p>These steps may seem obvious or simple.
+The next section hints at some of the factors
+that make these seemingly simple, obvious tasks
+less obvious and simple.
+In future posts I&rsquo;ll have more to say about these challenges and how to address them.</p>
+<div class="gblog-post__anchorwrap">
+    <h2 id="factors-that-affect-testability">
+        Factors that Affect Testability
+        <a data-clipboard-text="https://demery-pivotal.github.io/blog/testability/#factors-that-affect-testability" class="gblog-post__anchor gblog-post__anchor--right clip" aria-label="Anchor Factors that Affect Testability" href="#factors-that-affect-testability">
+            <svg class="icon gblog_link"><use xlink:href="#gblog_link"></use></svg>
+        </a>
+    </h2>
+</div><p>Any factor that makes key varaibles
+harder to control and observe
+makes a component less testable.</p>
+<p><strong>Component Complexity.</strong>
+The larger and more complex a component,
+the more variables are likely to be involved in its responsibilities.
+Refactoring a large component into smaller, more focused subcomponents
+can greatly reduce the number of variables
+that each test must control or observe.</p>
+<p><strong>Coupling.</strong>
+The more coupled a component is to other components,
+the harder it is to control and observe the variables involved in its responsibilities.
+Coupling makes a component depend <em>indirectly</em>
+on the variables that affect its collaborators.
+Testing a highly-coupled component
+may require controlling and observing key variables <em>indirectly</em>
+through the component&rsquo;s collaborators,
+the collaborators' collaborators,
+the collaborators' collaborators' collaborators,
+and so on through many layers of indirection.</p>
+<p><strong>Visibility of Dependencies.</strong>
+Coupling is especially challenging when the component&rsquo;s dependencies are <em>hidden.</em>
+A <em>hidden dependency</em> is any dependency
+that a component acquires in some way other than through its own interface.
+A component has a hidden dependency
+on any component it creates or that it retrieves from a hard-coded source,
+such as a static method of another class.
+Hidden dependencies can make key variables extremely difficult to control or observe.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>Note that by <em>variable</em> I mean <em>anything that can vary.</em> For an example of how even the simplest software involves a multitude of variables, see <a class="gblog-markdown__link" href="https://vimeo.com/34356209">Testing With Variables</a>, a 20-minute video by Elisabeth Hendrickson and me.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>]]></content></entry><entry><title type="html">Diagnosing Intermittent Failures</title><link href="https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/?utm_source=atom_feed" rel="alternate" type="text/html" hreflang="en"/><id>https://demery-pivotal.github.io/blog/diagnosing-intermittent-failures/</id><published>2021-08-10T00:00:00+00:00</published><updated>2021-08-10T11:31:22-07:00</updated><content type="html"><![CDATA[<p>To diagnose a frustrating intermittent failure, start by distinguishing three key ideas: failure, fault, and conditions. Then take a systematic approach to exploring the conditions and seeking the fault.</p>
 <div class="gblog-post__anchorwrap">
     <h2 id="anatomy-of-an-intermittent-failure">
         Anatomy of an Intermittent Failure
