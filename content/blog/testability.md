@@ -1,7 +1,6 @@
 ---
 title: Testability
-date: 2021-09-21
-draft: true
+date: 2021-09-26
 ---
 
 **Testability** is the ease of determining how well a component satisfies its responsibilities.
